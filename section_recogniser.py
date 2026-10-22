@@ -15,9 +15,8 @@ exactly):
     The lowest cost wins.
   * Rejection: if the best cost is above a threshold, or the runner-up is too
     close, the answer is "unknown" and no preset is applied.
-  * Confirmation: a section must win CONFIRM decisions in a row before it is
-    locked (the hysteresis idea again). Once locked it STAYS locked, through
-    "unknown" moments and pauses, until a different section wins CONFIRM in a row.
+  * Confirmation: the same answer must repeat CONFIRM times in a row before
+    the effect changes (the hysteresis idea again).
 
 Folder layout (you record these, dry, with the same phone/cable setup):
     sections/<name>/take_1.wav, take_2.wav, ...      at least 2 takes per section
@@ -166,10 +165,7 @@ def confidences(ranked, threshold, temp_frac=0.2):
 
 
 class Tracker:
-    """Turns noisy per-window rankings into a stable 'locked' section (None until the first lock).
-    A section wins a decision if it matches better than the threshold and clearly beats the
-    runner-up. CONFIRM wins in a row lock it; it then stays locked until a different section
-    gets CONFIRM wins in a row. An "unknown" decision never unlocks, it only breaks a streak."""
+    """Turns noisy per-window rankings into a stable 'locked' section (or None)."""
 
     def __init__(self, threshold):
         self.thr, self.cand, self.count, self.locked = threshold, None, 0, None
@@ -180,18 +176,16 @@ class Tracker:
         (c1, n1) = ranked[0]
         c2 = ranked[1][0] if len(ranked) > 1 else 9.0
         cand = n1 if (c1 < self.thr and c2 - c1 >= MARGIN) else None
-        if cand is None:
-            self.cand, self.count = None, 0
-        else:
-            self.count = self.count + 1 if cand == self.cand else 1
-            self.cand = cand
-            if self.count >= CONFIRM:
-                self.locked = cand
+        self.count = self.count + 1 if cand == self.cand else 1
+        self.cand = cand
+        if self.count >= CONFIRM:
+            self.locked = cand
         return self.locked
 
     def progress(self):
-        """(challenger, wins in a row) while a different section is building a streak, else None."""
-        if self.cand is not None and self.cand != self.locked:
+        """(challenger or None for "unknown", decisions in a row) while the answer is changing,
+        else None. For the page only; it does not affect the decision."""
+        if self.cand != self.locked:
             return self.cand, min(self.count, CONFIRM)
         return None
 

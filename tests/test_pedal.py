@@ -267,24 +267,21 @@ def test_octave_shifts_the_pitch(f0):
         assert abs(got - want) < 0.05 * want, (effect.name, got, want)
 
 
-def test_tracker_stays_locked_until_another_section_wins_confirm_in_a_row():
+def test_tracker_switches_after_confirm_identical_answers():
     t = sr.Tracker(threshold=0.3)
     win = lambda n: [(0.05, n), (0.5, "other_" + n)]
     unknown = [(0.6, "verse"), (0.7, "chorus")]
     for _ in range(sr.CONFIRM):
         t.update(win("verse"))
     assert t.locked == "verse" and t.progress() is None
-    for _ in range(10):
-        assert t.update(unknown) == "verse"                  # unknown never unlocks
     for k in range(1, sr.CONFIRM):
-        assert t.update(win("chorus")) == "verse"            # challenger building a streak
-        assert t.progress() == ("chorus", k)
-    t.update(unknown)                                         # an unknown breaks the streak...
-    assert t.progress() is None
-    for _ in range(sr.CONFIRM - 1):
+        assert t.update(unknown) == "verse"                  # not yet
+        assert t.progress() == (None, k)
+    assert t.update(unknown) is None                          # CONFIRM unknowns in a row: unlocked
+    for _ in range(sr.CONFIRM):
         t.update(win("chorus"))
-    assert t.locked == "verse"                                # ...so it has to start again
-    assert t.update(win("chorus")) == "chorus"                # CONFIRM in a row: swap
+    assert t.locked == "chorus"
+
 
 
 def test_wah_opens_on_the_pick_and_closes_as_the_note_fades():

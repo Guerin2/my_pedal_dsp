@@ -804,8 +804,7 @@ function render(s){S=s;const sls=s.setlist.state,lead=sls&&s.settings.drive!='li
  $('recinfo').textContent=s.teaching?('recording '+s.teaching.name+' ... '+s.teaching.seconds+' s'):'';
  const pre=s.presets.map(p=>[p,p.replace(/^neural:/,'neural: ')]);
  const cost=Object.fromEntries(s.ranked);const conf=Object.fromEntries(s.guesses.filter(g=>g[0]));const tb=$('secs');
- $('guesses').innerHTML=(s.challenger?`<div class="small" style="color:var(--warn)">switching to ${esc(s.challenger[0])}? ${s.challenger[1]}/${s.confirm} in a row</div>`:
-  (s.locked&&s.running?`<div class="dim small">locked: needs another section ${s.confirm}/${s.confirm} in a row to switch</div>`:''))+
+ $('guesses').innerHTML=(s.challenger?`<div class="small" style="color:var(--warn)">switching to ${s.challenger[0]?esc(s.challenger[0]):'unknown'}? ${s.challenger[1]}/${s.confirm} in a row</div>`:'')+
   (s.guesses.length?'<div class="dim small">Guesses (confidence from match cost)</div>'+s.guesses.map(([n,p])=>
   `<div class="row small" style="gap:6px;flex-wrap:nowrap"><span style="width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${n?esc(n):'<i>unknown</i>'}</span><div class="bar" style="flex:1"><i style="width:${p}%;${n&&n==s.locked?'':'background:var(--dim)'}"></i></div><span style="width:48px;text-align:right">${p.toFixed(0)}%</span></div>`).join(''):'');
  $('fewsecs').textContent=s.sections.length==1?'Only one section taught: anything you play can only be compared with it. Teach at least two (the more different, the better) so it has something to choose between.':'';
