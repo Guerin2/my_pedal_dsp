@@ -293,3 +293,15 @@ def test_wah_opens_on_the_pick_and_closes_as_the_note_fades():
     at = lambda ms: fc[int(ms / 1000 * SR)]
     assert at(50) > 1500 and at(900) < 0.5 * at(50)        # "jow": up on the attack, down on the decay
     assert np.all(np.isfinite(fc))
+
+
+def test_unknown_needs_a_higher_confidence_than_the_best_section():
+    close_call = [(0.05, "verse"), (0.06, "chorus")]          # within MARGIN of each other
+    no_match = [(0.40, "verse"), (0.45, "chorus")]            # above the threshold
+    t = sr.Tracker(threshold=0.3)
+    for _ in range(sr.CONFIRM):
+        t.update(close_call)
+    assert t.locked == "verse"                                 # best beats unknown: it gets the vote
+    for _ in range(sr.CONFIRM):
+        t.update(no_match)
+    assert t.locked is None                                    # unknown beats the best: unknown

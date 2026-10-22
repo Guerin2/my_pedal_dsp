@@ -14,7 +14,9 @@ exactly):
     take of each section, allowing the tempo to differ by up to 2x.
     The lowest cost wins.
   * Rejection: if the best cost is above a threshold, or the runner-up is too
-    close, the answer is "unknown" and no preset is applied.
+    close, the answer is "unknown", but only if "unknown" also has a higher
+    confidence than the best section (see confidences()); otherwise the best
+    section gets the vote. No preset is applied while the answer is unknown.
   * Confirmation: the same answer must repeat CONFIRM times in a row before
     the effect changes (the hysteresis idea again).
 
@@ -176,6 +178,10 @@ class Tracker:
         (c1, n1) = ranked[0]
         c2 = ranked[1][0] if len(ranked) > 1 else 9.0
         cand = n1 if (c1 < self.thr and c2 - c1 >= MARGIN) else None
+        if cand is None:                     # "unknown" must also out-score the best section
+            conf = dict(confidences(ranked, self.thr))
+            if conf[n1] >= conf[None]:
+                cand = n1
         self.count = self.count + 1 if cand == self.cand else 1
         self.cand = cand
         if self.count >= CONFIRM:
