@@ -1,0 +1,29 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# IDMT-SMT-Guitar dataset: CC BY-NC-ND, the audio and clips made from it must not be shared
+external/
+**/idmt_*.wav
+
+# Recordings and generated audio (large, and personal); the code recreates the rest
+*.wav
+*.m4a
+data/
+data_trimmed/
+data_trimmed_old/
+data_cable/
+data_cable_trimmed/
+rejectedData/
+sections/
+sections_out/
+demo/
+demo_cable/
+pedal_captures/
+neural/*.npz
+*.joblib
+
+# Editor settings
+.vscode/

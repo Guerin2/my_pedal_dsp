@@ -1,0 +1,13 @@
+# Versions from the venv this project was developed in.
+# Install with:  python -m pip install -r requirements.txt
+# pedal_app.py also needs the PortAudio library:  sudo apt install libportaudio2
+# convert_clips.py needs ffmpeg:                   sudo apt install ffmpeg
+numpy==2.5.4
+scipy==1.18.1
+scikit-learn==1.9.1
+librosa==1.0.0
+soundfile==0.14.0
+sounddevice==0.5.6
+matplotlib==3.11.2
+joblib==1.6.0
+pytest
